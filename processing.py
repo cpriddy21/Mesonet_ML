@@ -1,9 +1,9 @@
-""" Still needs work. As of right now, it:
-    - takes out the obvious irrelevant columns
-    - takes out fully null columns
-    - connects to mysql database (input ur own server info)
-    - categorical value handling
-    - datetime column handling """
+""" As of right now, it:
+    - Takes out the obvious irrelevant columns
+    - Takes out fully null columns
+    - Connects to mysql database (input ur own server info)
+    - Handles categorical data
+    - Handles datetime data """
 
 import pandas as pd
 import mysql.connector
