@@ -10,8 +10,8 @@ from sklearn.metrics import accuracy_score  # Example metric, replace with appro
 from processing import preprocessed_df
 
 # Split data into features (X) and target variable (y)
-X = preprocessed_df.drop(columns=[''])  # Replace 'target_column' with the name of your target variable
-y = preprocessed_df['']
+X = preprocessed_df.drop(columns=['PRCP_flag'])  # Replace 'target_column' with the name of your target variable
+y = preprocessed_df['PRCP_flag']
 
 # Split data into training and testing sets (80% training, 20% testing)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
