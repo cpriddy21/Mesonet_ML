@@ -1,4 +1,5 @@
 """ processing.py """
+import time
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from DatabaseConnection import DatabaseConnection
@@ -46,7 +47,7 @@ class ProcessingMethods:
         df.drop(columns=bad_columns, inplace=True)
     @staticmethod
     def preprocess_data(connection):
-        query = "SELECT * FROM sample"
+        query = "SELECT * FROM PRCP_flag_Samples"
         # Put table in a data frame
         df = pd.read_sql(query, con=connection)
 
@@ -68,7 +69,9 @@ class Process:
     def process_data():
         instance = DatabaseConnection.instance()
         connection = instance
-        return ProcessingMethods.preprocess_data(connection)
+        end_time = time.time()
+        processed = ProcessingMethods.preprocess_data(connection)
+        return processed
 
 
 preprocessed_df = Process.process_data()

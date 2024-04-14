@@ -1,16 +1,18 @@
 """ neural_network.py"""
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, accuracy_score
 from Model import Model
 from processing import preprocessed_df
+import time
 
+start = time.time()
 # Split data into features (X) and target variable (y)
 X = preprocessed_df.drop(columns=['PRCP_flag'])
 y = preprocessed_df['PRCP_flag']
 
 # Split data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.99, random_state=42)
 
 # Standardize the features
 scaler = StandardScaler()
@@ -27,6 +29,10 @@ model.fit(X_train_scaled, y_train, epochs=10, batch_size=32, validation_split=0.
 
 # Make predictions
 y_pred = model.predict(X_test_scaled).flatten()
+y_pred_binary = [1 if pred > 0.5 else 0 for pred in y_pred]
+
+accuracy = accuracy_score(y_test, y_pred_binary)
+print("Accuracy:", accuracy)
 
 # Evaluate the model
 mse = mean_squared_error(y_test, y_pred)
