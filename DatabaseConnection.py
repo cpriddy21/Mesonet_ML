@@ -15,7 +15,7 @@ class DatabaseConnection:
         return mysql.connector.connect(
             host="127.0.0.1",
             user="root",
-            password="hgdaria14",
+            password="*****",
             database="Mesonet Data"
         )
 
@@ -25,6 +25,6 @@ class DatabaseConnection:
         return mysql.connector.connect(
             host=os.environ.get("DB_HOST_IP", "172.17.0.2"),
             user=os.environ.get("DB_USER", "root"),
-            password=os.environ.get("DB_PASSWORD", "hgdaria14"),
+            password=os.environ.get("DB_PASSWORD", "*****"),
             database=os.environ.get("DB_NAME", "Mesonet Data")
         )'''
