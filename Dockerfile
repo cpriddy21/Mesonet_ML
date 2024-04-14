@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV DB_HOST_IP=172.17.0.2
 ENV DB_PORT=3306
 ENV DB_USER=root
-ENV DB_PASSWORD=hgdaria14
+ENV DB_PASSWORD=*****
 ENV DB_NAME=Mesonet\ Data
 
 
