@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:latest  # Use the latest MySQL image from Docker Hub
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: hgdaria14
+      MYSQL_DATABASE: "Mesonet Data"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  app:
+    build:
+      context: .
+      dockerfile: DockerfileModel
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+      - /Users/daria/Downloads:/input_files
+    environment:
+      DATABASE_HOST: db
+      DATABASE_NAME: "Mesonet Data"
+      DATABASE_USER: root
+      DATABASE_PASSWORD: hgdaria14
+
+volumes:
+  mysql_data:

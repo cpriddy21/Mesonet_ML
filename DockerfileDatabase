@@ -1,0 +1,6 @@
+# Use the official MySQL 8.0 image as a base
+FROM mysql:8.0
+
+# Environment variables for MySQL
+ENV MYSQL_ROOT_PASSWORD=hgdaria14
+ENV MYSQL_DATABASE="Mesonet Data"

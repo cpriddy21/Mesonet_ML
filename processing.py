@@ -47,42 +47,30 @@ class ProcessingMethods:
         df.drop(columns=bad_columns, inplace=True)
     @staticmethod
     def preprocess_data(connection):
-        query = "SELECT * FROM PRCP_flag_Samples"
+        query = "SELECT * FROM prcp_flag_samples"
         # Put table in a data frame
         df = pd.read_sql(query, con=connection)
 
-        # Get 4 instances where PRCP_flag is 1
-        positive_instances = df[df['PRCP_flag'] == 1].sample(n=4, replace=True)
-
-        # Get 4 instances where PRCP_flag is 0
-        negative_instances = df[df['PRCP_flag'] == 0].sample(n=4, replace=True)
-
-        # Concatenate positive and negative instances to create synthetic dataset
-        filtered_df = pd.concat([positive_instances, negative_instances], ignore_index=True)
-
         # Take out rows with missing values and fully null columns
-        filtered_df.dropna(axis=1, how='all', inplace=True)
-        filtered_df.dropna(inplace=True)
+        df.dropna(axis=1, how='all', inplace=True)
+        df.dropna(inplace=True)
 
         # Convert datetime columns
-        ProcessingMethods.handle_datetime(filtered_df)
+        ProcessingMethods.handle_category(df)
+        ProcessingMethods.handle_datetime(df)
         # Convert collection method
-        ProcessingMethods.handle_category(filtered_df)
-        # Drops remaining irrelevant columns
-        ProcessingMethods.drop_columns(filtered_df)
+        ProcessingMethods.drop_columns(df)
 
-        return filtered_df
+        return df
 
 class Process:
     @staticmethod
     def process_data():
         instance = DatabaseConnection.instance()
         connection = instance
-        end_time = time.time()
         processed = ProcessingMethods.preprocess_data(connection)
         return processed
 
 
 preprocessed_df = Process.process_data()
-print(preprocessed_df)
 

@@ -1,6 +1,12 @@
 """ DatabaseConnection.py """
 import os
 import mysql.connector
+import os
+
+database_host = os.getenv('DATABASE_HOST')
+database_name = os.getenv('DATABASE_NAME')
+database_user = os.getenv('DATABASE_USER')
+database_password = os.getenv('DATABASE_PASSWORD')
 class DatabaseConnection:
     _instance = None
 
@@ -10,21 +16,21 @@ class DatabaseConnection:
             cls._instance = cls._create_instance()
         return cls._instance
 
-    @classmethod
+    '''@classmethod
     def _create_instance(cls):
         return mysql.connector.connect(
             host="127.0.0.1",
             user="root",
-            password="*****",
+            password="hgdaria14",
             database="Mesonet Data"
         )
-
-    ''' When running Docker container... 
+'''
+    # When running Docker container...
     @classmethod
     def _create_instance(cls):
         return mysql.connector.connect(
-            host=os.environ.get("DB_HOST_IP", "172.17.0.2"),
-            user=os.environ.get("DB_USER", "root"),
-            password=os.environ.get("DB_PASSWORD", "*****"),
-            database=os.environ.get("DB_NAME", "Mesonet Data")
-        )'''
+            host=database_host,
+            user=database_user,
+            password=database_password,
+            database=database_name
+        )

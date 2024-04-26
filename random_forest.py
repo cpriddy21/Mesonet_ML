@@ -1,8 +1,7 @@
 """ random_forest.py """
-import time
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, mean_squared_error
-from Model import Model
+from sklearn.ensemble import RandomForestClassifier
 from processing import preprocessed_df
 
 # Split data into features (X) and target variable (y)
@@ -13,7 +12,7 @@ y = preprocessed_df['PRCP_flag']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.99, random_state=42)
 
 # Initialize and train machine learning model
-model = Model.create_model('random_forest', X_train)
+model = RandomForestClassifier()
 model.fit(X_train, y_train)
 
 # Make predictions on the testing data
