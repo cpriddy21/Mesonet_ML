@@ -15,9 +15,9 @@ Kentucky Mesonet, offering an enhanced solution for detecting errors in their da
   - **Scikit-learn**: Model training, evaluation, and prediction 
   - **Pandas**: data analysis
   - **LaTeX**: [documentation](Documentation) 
-  - **Waterfall methodology**
   - **Docker**: Containerization
   - **Collaboration/Communication**: Meet the client's needs, team alignment
+  - **Agile Methodology**
 
 ## Running The Project
 
