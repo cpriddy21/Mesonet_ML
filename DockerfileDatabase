@@ -1,4 +1,4 @@
-# Use the official MySQL 8.0 image as a base
+# Image base
 FROM mysql:8.0
 
 # Environment variables for MySQL

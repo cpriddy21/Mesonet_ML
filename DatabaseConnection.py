@@ -1,5 +1,3 @@
-""" DatabaseConnection.py """
-import os
 import mysql.connector
 import os
 
@@ -16,21 +14,25 @@ class DatabaseConnection:
             cls._instance = cls._create_instance()
         return cls._instance
 
+    # When running out of Docker with MySQL Workbench database
     '''@classmethod
     def _create_instance(cls):
         return mysql.connector.connect(
             host="127.0.0.1",
             user="root",
-            password="hgdaria14",
+            # Fill with password to database
+            password="*****",
             database="Mesonet Data"
         )
 '''
     # When running Docker container...
     @classmethod
     def _create_instance(cls):
+        # host should be current IP address
         return mysql.connector.connect(
-            host=database_host,
-            user=database_user,
-            password=database_password,
-            database=database_name
+            host="172.16.26.29",
+            port=3306,
+            user="root",
+            password="hgdaria14",
+            database="Mesonet Data",
         )

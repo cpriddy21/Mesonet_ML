@@ -1,5 +1,4 @@
 """ processing.py """
-import time
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from DatabaseConnection import DatabaseConnection
@@ -48,6 +47,7 @@ class ProcessingMethods:
     @staticmethod
     def preprocess_data(connection):
         query = "SELECT * FROM prcp_flag_samples"
+
         # Put table in a data frame
         df = pd.read_sql(query, con=connection)
 
@@ -58,6 +58,7 @@ class ProcessingMethods:
         # Convert datetime columns
         ProcessingMethods.handle_category(df)
         ProcessingMethods.handle_datetime(df)
+
         # Convert collection method
         ProcessingMethods.drop_columns(df)
 
