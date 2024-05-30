@@ -33,6 +33,6 @@ class DatabaseConnection:
             host="172.16.26.29",
             port=3306,
             user="root",
-            password="hgdaria14",
+            password="****",
             database="Mesonet Data",
         )
