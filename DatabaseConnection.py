@@ -5,6 +5,8 @@ database_host = os.getenv('DATABASE_HOST')
 database_name = os.getenv('DATABASE_NAME')
 database_user = os.getenv('DATABASE_USER')
 database_password = os.getenv('DATABASE_PASSWORD')
+
+
 class DatabaseConnection:
     _instance = None
 
@@ -30,9 +32,9 @@ class DatabaseConnection:
     def _create_instance(cls):
         # host should be current IP address
         return mysql.connector.connect(
-            host="172.16.26.29",
+            host="*****",
             port=3306,
-            user="root",
-            password="hgdaria14",
-            database="Mesonet Data",
+            user="datar",
+            password="******",
+            database="qadata",
         )
