@@ -1,5 +1,7 @@
 """Ensemble.py"""
-from imblearn.under_sampling import RandomUnderSampler, TomekLinks
+from collections import Counter
+from imblearn.over_sampling import RandomOverSampler
+from imblearn.ensemble import EasyEnsembleClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.model_selection import train_test_split, StratifiedKFold
@@ -17,20 +19,6 @@ from scikeras.wrappers import KerasClassifier
 from sklearn.tree import DecisionTreeClassifier
 
 
-def weighted_categorical_crossentropy(weights):
-    weights = K.variable(weights)
-
-    def loss(y_true, y_pred):
-        y_true = tf.cast(y_true, tf.int32)
-        y_true = tf.one_hot(y_true, depth=y_pred.shape[-1])
-        y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
-        loss = y_true * K.log(y_pred) * weights
-        loss = -K.sum(loss, -1)
-        return loss
-
-    return loss
-
-
 def preprocess_input_data(data):
     # Take out rows with missing values and fully null columns
     data.dropna(axis=1, how='all', inplace=True)
@@ -45,16 +33,16 @@ def preprocess_input_data(data):
     return data
 
 
-def create_model():
-    model = Sequential([
-        Dense(64, activation='relu', input_shape=(X_train_scaled.shape[1],)),
-        Dropout(0.5),
-        Dense(32, activation='relu'),
-        Dropout(0.5),
-        Dense(4, activation='softmax')
-    ])
-    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-    return model
+# Adjust predictions to be higher when in doubt
+def adjust_predictions(y_pred, y_proba):
+    for i in range(len(y_pred)):
+        if y_pred[i] == 0 and y_proba[i][3] > 0.2:
+            y_pred[i] = 3
+        elif y_pred[i] == 1 and y_proba[i][2] > 0.2:
+            y_pred[i] = 2
+        elif y_pred[i] == 2 and y_proba[i][3] > 0.01:
+            y_pred[i] = 3
+    return y_pred
 
 
 def predict(self, X):
@@ -78,12 +66,12 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# Wrap the Keras model to be used with scikit-learn
-model = KerasClassifier(build_fn=create_model, epochs=10, batch_size=32, verbose=0)
+print("Class distribution before resampling: ", Counter(y_train))
+class_weights = {0: 1, 1: 1, 2: 1, 3: 20}
 
 # Create the BalancedBaggingClassifier
 bagging = BaggingClassifier(
-    estimator=None,
+    estimator=DecisionTreeClassifier(class_weight=class_weights),
     n_estimators=10,  # number of models to train
     max_samples=0.5,  # undersampling the majority class to balance
     bootstrap=True,
@@ -96,12 +84,14 @@ bagging.fit(X_train_scaled, y_train)
 
 # Predict using the bagging ensemble
 y_pred_bagging = bagging.predict(X_test_scaled)
+y_pred_proba_bagging = bagging.predict_proba(X_test_scaled)
+
+y_pred_bagging_adjusted = adjust_predictions(y_pred_bagging.copy(), y_pred_proba_bagging)
 
 # Evaluate accuracy
-accuracy_bagging = accuracy_score(y_test, y_pred_bagging)
-print("Accuracy of Bagging Ensemble:", accuracy_bagging)
+accuracy_bagging = accuracy_score(y_test, y_pred_bagging_adjusted)
 
-processed_dataset = pd.read_csv(r"C:\Users\drm69402\Desktop\input_file.csv")
+processed_dataset = pd.read_csv(r"C:\Users\drm69402\Desktop\2011_input.csv")
 # processed_dataset = preprocess_input_data(input_dataset)
 
 # Split the new data into features
@@ -113,24 +103,29 @@ X_new_scaled = scaler.transform(X_new)
 
 # Predict the PRCP_flag values
 y_new_pred = bagging.predict(X_new_scaled)
+y_new_proba = bagging.predict_proba(X_new_scaled)
 
-print("Classification Report:\n", classification_report(y_new, y_new_pred))
-print("Confusion Matrix:\n", confusion_matrix(y_new, y_new_pred))
+# Adjust new predictions
+y_new_pred_adjusted = adjust_predictions(y_new_pred.copy(), y_new_proba)
 
+
+print("Classification Report:\n", classification_report(y_new, y_new_pred_adjusted))
+print("Confusion Matrix:\n", confusion_matrix(y_new, y_new_pred_adjusted))
+'''
 print("starting")
 var = 0
 # Iterate over the new dataset and compare predictions with actual values
-for index, (actual, predicted) in enumerate(zip(processed_dataset['PRCP_flag'], y_new_pred)):
+for index, (actual, predicted) in enumerate(zip(processed_dataset['PRCP_flag'], y_new_pred_adjusted)):
     if actual != predicted:
         print(f"{var} Data Point: {index}, Value in file: {actual}, Predicted: {predicted}")
         var = var + 1
 
 results_df = pd.DataFrame({
     'Actual_PRCP_flag': y_new,
-    'Predicted_PRCP_flag': y_new_pred
+    'Predicted_PRCP_flag': y_new_pred_adjusted
 })
 
 # Save the results DataFrame to a CSV file
-results_df.to_csv(r"C:\Users\drm69402\Desktop\actual_predicted.csv", index=False)
-print("Actual vs Predicted results saved to actual_predicted.csv")
+# results_df.to_csv(, index=False)
+print("Actual vs Predicted results saved to actual_predicted.csv") '''
 
