@@ -25,14 +25,14 @@ class DatabaseConnection:
             database="Mesonet Data"
         )
 '''
-    # When running Docker container...
+    # When running Docker container... FIX
     @classmethod
     def _create_instance(cls):
         # host should be current IP address
         return mysql.connector.connect(
-            host="172.16.26.29",
+            host=" ",
             port=3306,
-            user="root",
-            password="hgdaria14",
-            database="Mesonet Data",
+            user=" ",
+            password=" ",
+            database=" ",
         )
