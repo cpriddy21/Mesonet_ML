@@ -78,9 +78,9 @@ class ProcessingMethods:
 
         # Calculate sampling proportions based on raw data counts
         counts = {
-            0: 80000,  # 95.5%
-            1: 10000,   # 2%
-            2: 6000,   # 1.5%
+            0: 87000,  # 95.5%
+            1: 5000,   # 2%
+            2: 4000,   # 1.5%
             3: 4000    # 1%
         }
 
@@ -91,7 +91,7 @@ class ProcessingMethods:
             sampled_class_df = class_df.sample(n=count, replace=True, random_state=42)
             sampled_df = pd.concat([sampled_df, sampled_class_df])
 
-        # sampled_df.to_csv('training_data.csv', index=False)
+        # sampled_df.to_csv('2011_input.csv', index=False)
         return sampled_df
 
 
@@ -100,7 +100,9 @@ class Process:
     def process_data():
         instance = DatabaseConnection.instance()
         connection = instance
-        processed = ProcessingMethods.preprocess_data(connection)
+        # processed = ProcessingMethods.preprocess_data(connection)
+        processed = pd.read_csv(r"C:\Users\drm69402\Desktop\training_data.csv")
+
         # processed.to_csv('training_data.csv', index=False)
 
         return processed
