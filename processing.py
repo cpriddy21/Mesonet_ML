@@ -5,13 +5,13 @@ from DatabaseConnection import DatabaseConnection
 import matplotlib.pyplot as plt
 
 
-
 class ProcessingMethods:
     @staticmethod
     def describe_columns(df):
         pd.set_option('display.max_columns', None)
         numeric_columns = df.select_dtypes(include=['number'])
         print(numeric_columns.describe())
+
     @staticmethod
     def handle_datetime(df):
         # UTCTimestamp col
@@ -36,12 +36,15 @@ class ProcessingMethods:
         df['Month_Stored'] = df['UTCTimestampStored'].dt.month
 
         # drop original cols
-        df.drop(columns=['UTCTimestampCollected', 'LocalTimestampCollected', 'StandardTimestampCollected', 'UTCTimestampStored'], inplace=True)
+        df.drop(columns=['UTCTimestampCollected', 'LocalTimestampCollected', 'StandardTimestampCollected',
+                         'UTCTimestampStored'], inplace=True)
+
     @staticmethod
     def handle_category(df):
         # Label encode the CollectionMethod column
         le = LabelEncoder()
         df['CollectionMethod'] = le.fit_transform(df['CollectionMethod'])
+
     @staticmethod
     def drop_columns(df):
         # Drops unneeded columns that are still present after fully null columns are dropped
@@ -58,12 +61,14 @@ class ProcessingMethods:
         plt.pie(class_distribution, labels=class_distribution.index, autopct='%1.1f%%', startangle=140)
         plt.title('Class Distribution (Pie Chart)')
         plt.show()
+
     @staticmethod
     def preprocess_data(connection):
-        query = "SELECT * FROM QA_KYMN_TBL_5min_2009"
+        query = "SELECT * FROM QA_KYMN_TBL_5min_2012"
 
         # Put table in a data frame
         df = pd.read_sql(query, con=connection)
+        unprocessed_df = df.to_csv('2012_table_unprocessed.csv', index=False)
 
         # Take out rows with missing values and fully null columns
         df.dropna(axis=1, how='all', inplace=True)
@@ -77,11 +82,11 @@ class ProcessingMethods:
         ProcessingMethods.drop_columns(df)
 
         # Calculate sampling proportions based on raw data counts
-        counts = {
+        '''counts = {
             0: 87000,  # 95.5%
-            1: 5000,   # 2%
-            2: 4000,   # 1.5%
-            3: 4000    # 1%
+            1: 6000,   # 2%
+            2: 6000,   # 1.5%
+            3: 5000    # 1%
         }
 
         # Sample records from each class separately
@@ -89,10 +94,10 @@ class ProcessingMethods:
         for class_value, count in counts.items():
             class_df = df[df["PRCP_flag"] == class_value]
             sampled_class_df = class_df.sample(n=count, replace=True, random_state=42)
-            sampled_df = pd.concat([sampled_df, sampled_class_df])
+            sampled_df = pd.concat([sampled_df, sampled_class_df])'''
 
-        # sampled_df.to_csv('2011_input.csv', index=False)
-        return sampled_df
+        df.to_csv('full_2012_table.csv', index=False)
+        return unprocessed_df
 
 
 class Process:
@@ -101,10 +106,7 @@ class Process:
         instance = DatabaseConnection.instance()
         connection = instance
         # processed = ProcessingMethods.preprocess_data(connection)
-        processed = pd.read_csv(r"C:\Users\drm69402\Desktop\training_data.csv")
-
-        # processed.to_csv('training_data.csv', index=False)
-
+        processed = pd.read_csv(r"C:\Users\drm69402\Desktop\2010_training.csv")
         return processed
 
 
