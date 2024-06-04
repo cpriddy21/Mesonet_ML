@@ -64,11 +64,13 @@ class ProcessingMethods:
 
     @staticmethod
     def preprocess_data(connection):
-        query = "SELECT * FROM QA_KYMN_TBL_5min_2012"
+        query_2010 = "SELECT * FROM QA_KYMN_TBL_5min_2012 LIMIT 800000"
+        # query_2009 = "SELECT * FROM QA_KYMN_TBL_5min_2009"
 
         # Put table in a data frame
-        df = pd.read_sql(query, con=connection)
-        unprocessed_df = df.to_csv('2012_table_unprocessed.csv', index=False)
+        df = pd.read_sql(query_2010, con=connection)
+        # df_2009 = pd.read_sql(query_2009, con=connection)
+        # df = pd.concat([df_2009, df_2010], ignore_index=True)
 
         # Take out rows with missing values and fully null columns
         df.dropna(axis=1, how='all', inplace=True)
@@ -80,13 +82,13 @@ class ProcessingMethods:
 
         # Convert collection method
         ProcessingMethods.drop_columns(df)
-
+        '''
         # Calculate sampling proportions based on raw data counts
-        '''counts = {
-            0: 87000,  # 95.5%
-            1: 6000,   # 2%
-            2: 6000,   # 1.5%
-            3: 5000    # 1%
+        counts = {
+            0: 90,
+            1: 5,
+            2: 3,
+            3: 2
         }
 
         # Sample records from each class separately
@@ -96,8 +98,8 @@ class ProcessingMethods:
             sampled_class_df = class_df.sample(n=count, replace=True, random_state=42)
             sampled_df = pd.concat([sampled_df, sampled_class_df])'''
 
-        df.to_csv('full_2012_table.csv', index=False)
-        return unprocessed_df
+        df.to_csv('2012_800k.csv', index=False)
+        return df
 
 
 class Process:
@@ -106,7 +108,7 @@ class Process:
         instance = DatabaseConnection.instance()
         connection = instance
         # processed = ProcessingMethods.preprocess_data(connection)
-        processed = pd.read_csv(r"C:\Users\drm69402\Desktop\2010_training.csv")
+        processed = pd.read_csv(r"C:\Users\drm69402\Desktop\2010_training_sorted.csv")
         return processed
 
 

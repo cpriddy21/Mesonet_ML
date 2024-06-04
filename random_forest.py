@@ -15,7 +15,7 @@ def preprocess_input_data(data):
     data.dropna(axis=1, how='all', inplace=True)
     data.dropna(inplace=True)
     # Convert datetime columns
-    ProcessingMethods.handle_datetime(data)
+    # ProcessingMethods.handle_datetime(data)
     # Convert collection method
     ProcessingMethods.handle_category(data)
     # Drops remaining irrelevant columns
@@ -83,7 +83,7 @@ print("Confusion Matrix (Tuned Model):\n", confusion_matrix(y_test, y_pred))
 
 " Predictions for input file"
 
-processed_dataset = pd.read_csv(r"C:\Users\drm69402\Desktop\2011_input.csv")
+processed_dataset = pd.read_csv(r"C:\Users\drm69402\Desktop\2011_processed_table_500k.csv")
 # processed_dataset = preprocess_input_data(input_dataset)
 
 # Split the new data into features

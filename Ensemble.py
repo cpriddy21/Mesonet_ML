@@ -1,12 +1,11 @@
 """Ensemble.py"""
-from sklearn.neighbors import LocalOutlierFactor
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import train_test_split
 from processing import preprocessed_df
 import numpy as np
 import pandas as pd
 from processing import ProcessingMethods
-from sklearn.ensemble import BaggingClassifier, IsolationForest
+from sklearn.ensemble import BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
 
 
@@ -44,11 +43,36 @@ def predict(self, X):
 
     return majority_votes
 
+
+def end_to_end(filename, model):
+    # Load the data
+    df = pd.read_csv(filename)
+
+    # Predict using the trained model
+    y_pred = model.predict(df)
+
+    # Add predictions to the dataframe
+    df['PRCP_flag'] = y_pred
+
+    # Save the dataframe to a new file
+    df.to_csv("end_test_results.csv", index=False)
+
+    origin_file = pd.read_csv(r"C:\Users\drm69402\Desktop\2012 rlly big test\2012_flag.csv")
+
+    # Compare the 'PRCP_flag' column in the two dataframes
+    differences = df[df['PRCP_flag'] != origin_file['PRCP_flag']]
+
+    # Save the differences to a new file
+    differences.to_csv("comparison_test.csv", index=False)
+
+    return df
+
+
 # Create the BalancedBaggingClassifier
 bagging = BaggingClassifier(
     estimator=DecisionTreeClassifier(),
     n_estimators=10,  # number of models to train
-    max_samples=0.5,  # undersampling the majority class to balance
+    max_samples=0.5,  # undersample the majority class
     bootstrap=False,
     random_state=42,
     n_jobs=-1  # use all available CPU cores
@@ -71,9 +95,11 @@ y_pred_bagging = bagging.predict(X_test)
 print("Classification Report:\n", classification_report(y_test, y_pred_bagging))
 print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_bagging))
 
+end_to_end(r"C:\Users\drm69402\Desktop\2012 rlly big test\2012_no_flag.csv", bagging)
+'''
 " Predictions for input file"
 
-processed_dataset = pd.read_csv(r"C:\Users\drm69402\Desktop\2011_input.csv")
+processed_dataset = pd.read_csv(r)
 # processed_dataset = preprocess_input_data(input_dataset)
 
 # Split the new data into features
@@ -85,6 +111,10 @@ y_new_pred = bagging.predict(X_new)
 
 print("Classification Report:\n", classification_report(y_new, y_new_pred))
 print("Confusion Matrix:\n", confusion_matrix(y_new, y_new_pred))
+
+
+
+
 
 print("starting")
 var = 0
@@ -100,6 +130,6 @@ results_df = pd.DataFrame({
 })
 
 # Save the results DataFrame to a CSV file
-results_df.to_csv("2012_prediction_actual.csv", index=False)
-print("Actual vs Predicted results saved to actual_predicted.csv")
+# results_df.to_csv("2011_prediction_actual.csv", index=False)
+print("Actual vs Predicted results saved to actual_predicted.csv")'''
 
