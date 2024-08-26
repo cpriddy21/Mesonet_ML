@@ -1,4 +1,4 @@
-""" processing.py """
+""" Process data from raw data file """
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from DatabaseConnection import DatabaseConnection
