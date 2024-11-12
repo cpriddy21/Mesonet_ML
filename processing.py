@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from DatabaseConnection import DatabaseConnection
 import matplotlib.pyplot as plt
+import os
 
 
 class ProcessingMethods:
@@ -15,29 +16,37 @@ class ProcessingMethods:
     @staticmethod
     def handle_datetime(df):
         # UTCTimestamp col
-        df['UTCTimestampCollected'] = pd.to_datetime(df['UTCTimestampCollected'])
-        # Extract datetime features
-        df['Year_UTC'] = df['UTCTimestampCollected'].dt.year
-        df['Month_UTC'] = df['UTCTimestampCollected'].dt.month
+        if 'UTCTimestampCollected' in df.columns:
+            df['UTCTimestampCollected'] = pd.to_datetime(df['UTCTimestampCollected'])
+            # Extract datetime features
+            df['Year_UTC'] = df['UTCTimestampCollected'].dt.year
+            df['Month_UTC'] = df['UTCTimestampCollected'].dt.month
+            df['Day_UTC'] = df['UTCTimestampCollected'].dt.day
+            df['Hour_UTC'] = df['UTCTimestampCollected'].dt.hour
+            df['Minute_UTC'] = df['UTCTimestampCollected'].dt.minute
 
-        # LocalTimestamp col
-        df['LocalTimestampCollected'] = pd.to_datetime(df['LocalTimestampCollected'])
-        df['Year_Local'] = df['LocalTimestampCollected'].dt.year
-        df['Month_Local'] = df['LocalTimestampCollected'].dt.month
+            # LocalTimestamp col
+            # df['LocalTimestampCollected'] = pd.to_datetime(df['LocalTimestampCollected'])
+            # df['Year_Local'] = df['LocalTimestampCollected'].dt.year
+            # df['Month_Local'] = df['LocalTimestampCollected'].dt.month
 
-        # StandardTimestamp col
-        df['StandardTimestampCollected'] = pd.to_datetime(df['StandardTimestampCollected'])
-        df['Year_Standard'] = df['StandardTimestampCollected'].dt.year
-        df['Month_Standard'] = df['StandardTimestampCollected'].dt.month
+            # StandardTimestamp col
+            # df['StandardTimestampCollected'] = pd.to_datetime(df['StandardTimestampCollected'], format='%m/%d/%Y %H:%M')
+            # df['Year_Standard'] = df['StandardTimestampCollected'].dt.year
+            # df['Month_Standard'] = df['StandardTimestampCollected'].dt.month
+            # df['Day_Standard'] = df['StandardTimestampCollected'].dt.day
+            # df['Hour_Standard'] = df['StandardTimestampCollected'].dt.hour
+            # df['Minute_Standard'] = df['StandardTimestampCollected'].dt.minute
 
-        # UTCTimestampStored col
-        df['UTCTimestampStored'] = pd.to_datetime(df['UTCTimestampStored'])
-        df['Year_Stored'] = df['UTCTimestampStored'].dt.year
-        df['Month_Stored'] = df['UTCTimestampStored'].dt.month
+            # UTCTimestampStored col
+            # df['UTCTimestampStored'] = pd.to_datetime(df['UTCTimestampStored'])
+            # df['Year_Stored'] = df['UTCTimestampStored'].dt.year
+            # df['Month_Stored'] = df['UTCTimestampStored'].dt.month
 
-        # drop original cols
-        df.drop(columns=['UTCTimestampCollected', 'LocalTimestampCollected', 'StandardTimestampCollected',
-                         'UTCTimestampStored'], inplace=True)
+            # drop original cols
+            df.drop(columns=['UTCTimestampCollected', 'LocalTimestampCollected', 'StandardTimestampCollected','UTCTimestampStored'], inplace=True)
+            # df.drop(columns=['LocalTimestampCollected', 'StandardTimestampCollected','UTCTimestampStored'], inplace=True)
+
 
     @staticmethod
     def handle_category(df):
@@ -49,6 +58,8 @@ class ProcessingMethods:
     def drop_columns(df):
         # Drops unneeded columns that are still present after fully null columns are dropped
         bad_columns = ['BATV', 'DOOR', 'PMAS', 'PMAS_flag', 'PMAS_status', 'RGBV']
+        bad_columns = [col for col in bad_columns if col in df.columns]
+
         df.drop(columns=bad_columns, inplace=True)
 
     def class_distribution(df):
@@ -64,20 +75,21 @@ class ProcessingMethods:
 
     @staticmethod
     def preprocess_data(connection):
-        query_2010 = "SELECT * FROM QA_KYMN_TBL_5min_2012 LIMIT 800000"
-        # query_2009 = "SELECT * FROM QA_KYMN_TBL_5min_2009"
+        # Change query to pull from database table
+        query = "SELECT * FROM PRCP_random_sample_100000"
 
         # Put table in a data frame
-        df = pd.read_sql(query_2010, con=connection)
-        # df_2009 = pd.read_sql(query_2009, con=connection)
-        # df = pd.concat([df_2009, df_2010], ignore_index=True)
+        df = pd.read_sql(query, con=connection)
 
         # Take out rows with missing values and fully null columns
-        df.dropna(axis=1, how='all', inplace=True)
+        #df.dropna(axis=1, how='all', inplace=True)
+        #drop column if more than 50% of values are null
+        df.dropna(axis=1, thresh=len(df) * 0.5, inplace=True)
         df.dropna(inplace=True)
 
         # Convert datetime columns
         ProcessingMethods.handle_category(df)
+        
         ProcessingMethods.handle_datetime(df)
 
         # Convert collection method
@@ -98,7 +110,6 @@ class ProcessingMethods:
             sampled_class_df = class_df.sample(n=count, replace=True, random_state=42)
             sampled_df = pd.concat([sampled_df, sampled_class_df])'''
 
-        df.to_csv('2012_800k.csv', index=False)
         return df
 
 
@@ -107,10 +118,18 @@ class Process:
     def process_data():
         instance = DatabaseConnection.instance()
         connection = instance
-        # processed = ProcessingMethods.preprocess_data(connection)
-        processed = pd.read_csv(r"C:\Users\drm69402\Desktop\2010_training_sorted.csv")
+        processed = ProcessingMethods.preprocess_data(connection)
+        # Change input file to one with realistic balance of data classes (0,1,2, and 3s)
+        #processed = pd.read_csv(r"C:\Users\cassa\Downloads\PRCP_random_sample_100000.csv")
         return processed
 
 
 preprocessed_df = Process.process_data()
+#preprocessed_df.to_csv("preprocessed_df.csv", index=False)
+parent_directory = os.path.join("..", "ML_output")
+os.makedirs(parent_directory, exist_ok=True)
+
+# Save the differences to a CSV file in the new folder
+file_path = os.path.join(parent_directory, "preprocessed_df.csv")
+preprocessed_df.to_csv(file_path, index=False)
 

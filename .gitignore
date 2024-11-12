@@ -1,0 +1,27 @@
+# Ignore IDE/editor and system files
+.idea/
+.vscode/
+.DS_Store
+
+# Ignore Python virtual environment
+.venv/
+
+# Ignore Python cache files and compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore temporary output or test files
+comparison_test.csv
+end_test_results.csv
+prediction_actual.csv
+preprocessed_df.csv
+processed.csv
+ml_out.txt
+
+# Ignore model output JSON if it’s temporary
+model_output.json
+
+# Ignore Docker Compose file and database connection file with local changes
+docker-compose.yaml
+DatabaseConnection.py

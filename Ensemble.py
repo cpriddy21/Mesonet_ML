@@ -1,5 +1,5 @@
 """Ensemble.py"""
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, mean_squared_error
 from sklearn.model_selection import train_test_split
 from processing import preprocessed_df
 import numpy as np
@@ -7,7 +7,15 @@ import pandas as pd
 from processing import ProcessingMethods
 from sklearn.ensemble import BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
+import json
+import os
+import matplotlib.pyplot as plt
+import seaborn as sns
 
+
+
+parent_directory = os.path.join("..", "ML_output")
+os.makedirs(parent_directory, exist_ok=True)
 
 def preprocess_input_data(data):
     # Take out rows with missing values and fully null columns
@@ -19,9 +27,8 @@ def preprocess_input_data(data):
     ProcessingMethods.handle_category(data)
     # Drops remaining irrelevant columns
     ProcessingMethods.drop_columns(data)
-
+    data.to_csv("processed.csv", index=False)
     return data
-
 
 # Adjust predictions to be higher when in doubt
 def adjust_predictions(y_pred, y_proba):
@@ -34,7 +41,6 @@ def adjust_predictions(y_pred, y_proba):
             y_pred[i] = 3
     return y_pred
 
-
 def predict(self, X):
     # Make predictions using all the base classifiers
     predictions = [classifier.predict(X) for classifier in self.classifiers]
@@ -42,7 +48,6 @@ def predict(self, X):
     majority_votes = np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=0, arr=predictions)
 
     return majority_votes
-
 
 def end_to_end(filename, model):
     # Load the data
@@ -54,16 +59,25 @@ def end_to_end(filename, model):
     # Add predictions to the dataframe
     df['PRCP_flag'] = y_pred
 
-    # Save the dataframe to a new file
-    df.to_csv("end_test_results.csv", index=False)
+    df['Reviewed'] = 0
+    df['Comment'] = ''
 
-    origin_file = pd.read_csv(r"C:\Users\drm69402\Desktop\2012 rlly big test\2012_flag.csv")
+    # Save the dataframe to a new file
+    file_path = os.path.join(parent_directory,"model_output.csv")
+    df.to_csv(file_path, index=False)
+    #df.to_json("model_output.json", orient="records", lines=True)
+    file_path = os.path.join(parent_directory, "model_output.json")
+    df.to_json(file_path, orient="records", lines=False)
+
+    origin_file = pd.read_csv(r"C:\Users\cassa\Code\ML_output\preprocessed_df.csv") #raw input/with flag??
 
     # Compare the 'PRCP_flag' column in the two dataframes
     differences = df[df['PRCP_flag'] != origin_file['PRCP_flag']]
 
     # Save the differences to a new file
-    differences.to_csv("comparison_test.csv", index=False)
+    #differences.to_csv("comparison_test.csv", index=False)
+    file_path = os.path.join(parent_directory, "comparison_test.csv")
+    differences.to_csv(file_path, index=False)
 
     return df
 
@@ -89,18 +103,42 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 bagging.fit(X_train, y_train)
 # Predict using the bagging ensemble
 y_pred_bagging = bagging.predict(X_test)
+mse = mean_squared_error(y_test, y_pred_bagging)
+print("Mean Squared Error:", mse)
 
+# class_counts = pd.DataFrame({'Class': y_train})
+# plt.figure(figsize=(8, 6))
+# sns.countplot(data=class_counts, x='Class', palette='Reds')
+
+# # Set title and labels
+# plt.title('Class Distribution (Class Imbalance)', fontsize=18)
+# plt.xlabel('Class', fontsize=16)
+# plt.ylabel('Count', fontsize=16)
+
+# # Show the plot
+# plt.show()
 # Evaluate accuracy
 # Evaluate the model
 print("Classification Report:\n", classification_report(y_test, y_pred_bagging))
 print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_bagging))
+# cm = confusion_matrix(y_test, y_pred_bagging)
+# plt.figure(figsize=(8,6))
+# sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False,xticklabels=[0, 1, 2, 3], yticklabels=[0, 1, 2, 3])
+# plt.xlabel('Predicted')
+# plt.ylabel('Actual')
+# plt.title('Confusion Matrix')
+# plt.show()
 
-end_to_end(r"C:\Users\drm69402\Desktop\2012 rlly big test\2012_no_flag.csv", bagging)
-'''
+
+
+end_to_end(r"C:\Users\cassa\Code\ML_output\preprocessed_df_no_flag.csv", bagging) #no flag
+
+
 " Predictions for input file"
 
-processed_dataset = pd.read_csv(r)
-# processed_dataset = preprocess_input_data(input_dataset)
+#processed_dataset = pd.read_csv(r)
+origin_file = pd.read_csv(r"C:\Users\cassa\Code\ML_output\preprocessed_df.csv") #raw data?
+processed_dataset = preprocess_input_data(origin_file)
 
 # Split the new data into features
 X_new = processed_dataset.drop(columns=['PRCP_flag'])
@@ -110,7 +148,29 @@ y_new = processed_dataset['PRCP_flag']
 y_new_pred = bagging.predict(X_new)
 
 print("Classification Report:\n", classification_report(y_new, y_new_pred))
+# report = classification_report(y_new, y_new_pred, output_dict=True)
+
+# # Convert classification report to a pandas DataFrame
+# df_report = pd.DataFrame(report).transpose()
+
+# # Plot Precision, Recall, and F1-Score
+# df_report[['precision', 'recall', 'f1-score']].drop('accuracy').plot(kind='bar', figsize=(10,6))
+# plt.title('Classification Report Metrics per Class')
+# plt.ylabel('Score')
+# plt.xticks(rotation=0)
+# plt.show()
+
 print("Confusion Matrix:\n", confusion_matrix(y_new, y_new_pred))
+# cm = confusion_matrix(y_new, y_new_pred)
+# plt.figure(figsize=(8,6))
+# sns.heatmap(cm, annot=True, fmt='d', cmap='Reds', cbar=False,xticklabels=[0, 1, 2, 3], yticklabels=[0, 1, 2, 3],annot_kws={"size": 16})
+# plt.xticks(fontsize=14)
+# plt.yticks(fontsize=14)
+# plt.xlabel('Predicted')
+# plt.ylabel('Actual')
+# plt.title('Confusion Matrix')
+# plt.show()
+
 
 
 
@@ -130,6 +190,12 @@ results_df = pd.DataFrame({
 })
 
 # Save the results DataFrame to a CSV file
-# results_df.to_csv("2011_prediction_actual.csv", index=False)
-print("Actual vs Predicted results saved to actual_predicted.csv")'''
+#results_df.to_csv("prediction_actual.csv", index=False)
+file_path = os.path.join(parent_directory, "prediction_actual.csv")
+results_df.to_csv(file_path, index=False)
+
+print("Actual vs Predicted results saved to actual_predicted.csv")
+
+
+
 

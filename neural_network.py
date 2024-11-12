@@ -97,7 +97,7 @@ y_pred_classes = np.argmax(y_pred, axis=1)
 accuracy = accuracy_score(y_test, y_pred_classes)
 print("Accuracy:", accuracy)
 
-processed_dataset = pd.read_csv(r"C:\Users\drm69402\Desktop\input_file.csv")
+processed_dataset = pd.read_csv(r"C:\Users\cassa\Downloads\input_file.csv")
 # processed_dataset = preprocess_input_data(input_dataset)
 
 # Split the new data into features
