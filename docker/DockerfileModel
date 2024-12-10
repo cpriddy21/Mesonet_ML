@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV DATABASE_HOST=172.19.0.1
 ENV DATABASE_NAME="Mesonet Data"
 ENV DATABASE_USER=root
-ENV DATABASE_PASSWORD=hgdaria14
+ENV DATABASE_PASSWORD=*******
 
 # Run app.py when the container launches
-CMD ["python", "neural_network.py"]
+CMD ["python", "ensemble.py"]

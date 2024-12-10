@@ -2,5 +2,5 @@
 FROM mysql:8.0
 
 # Environment variables for MySQL
-ENV MYSQL_ROOT_PASSWORD=hgdaria14
+ENV MYSQL_ROOT_PASSWORD=*******
 ENV MYSQL_DATABASE="Mesonet Data"
