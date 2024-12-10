@@ -1,4 +1,3 @@
-"""Ensemble.py"""
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import train_test_split
 from processing import preprocessed_df
@@ -7,20 +6,6 @@ import pandas as pd
 from processing import ProcessingMethods
 from sklearn.ensemble import BaggingClassifier
 from sklearn.tree import DecisionTreeClassifier
-
-
-def preprocess_input_data(data):
-    # Take out rows with missing values and fully null columns
-    data.dropna(axis=1, how='all', inplace=True)
-    data.dropna(inplace=True)
-    # Convert datetime columns
-    ProcessingMethods.handle_datetime(data)
-    # Convert collection method
-    ProcessingMethods.handle_category(data)
-    # Drops remaining irrelevant columns
-    ProcessingMethods.drop_columns(data)
-
-    return data
 
 
 # Adjust predictions to be higher when in doubt
@@ -71,11 +56,11 @@ def end_to_end(filename, model):
 # Create the BalancedBaggingClassifier
 bagging = BaggingClassifier(
     estimator=DecisionTreeClassifier(),
-    n_estimators=10,  # number of models to train
-    max_samples=0.5,  # undersample the majority class
+    n_estimators=10,  
+    max_samples=0.5, 
     bootstrap=False,
     random_state=42,
-    n_jobs=-1  # use all available CPU cores
+    n_jobs=-1  
 )
 
 # Split data into features (X) and target variable (y)
@@ -90,46 +75,8 @@ bagging.fit(X_train, y_train)
 # Predict using the bagging ensemble
 y_pred_bagging = bagging.predict(X_test)
 
-# Evaluate accuracy
 # Evaluate the model
 print("Classification Report:\n", classification_report(y_test, y_pred_bagging))
 print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_bagging))
 
 end_to_end(r"C:\Users\drm69402\Desktop\2012 rlly big test\2012_no_flag.csv", bagging)
-'''
-" Predictions for input file"
-
-processed_dataset = pd.read_csv(r)
-# processed_dataset = preprocess_input_data(input_dataset)
-
-# Split the new data into features
-X_new = processed_dataset.drop(columns=['PRCP_flag'])
-y_new = processed_dataset['PRCP_flag']
-
-# Predict the PRCP_flag values
-y_new_pred = bagging.predict(X_new)
-
-print("Classification Report:\n", classification_report(y_new, y_new_pred))
-print("Confusion Matrix:\n", confusion_matrix(y_new, y_new_pred))
-
-
-
-
-
-print("starting")
-var = 0
-# Iterate over the new dataset and compare predictions with actual values
-for index, (actual, predicted) in enumerate(zip(processed_dataset['PRCP_flag'], y_new_pred)):
-    if actual != predicted:
-        print(f"{var} Data Point: {index}, Value in file: {actual}, Predicted: {predicted}")
-        var = var + 1
-
-results_df = pd.DataFrame({
-    'Actual_PRCP_flag': y_new,
-    'Predicted_PRCP_flag': y_new_pred
-})
-
-# Save the results DataFrame to a CSV file
-# results_df.to_csv("2011_prediction_actual.csv", index=False)
-print("Actual vs Predicted results saved to actual_predicted.csv")'''
-

@@ -1,4 +1,3 @@
-""" Not Used """
 from imblearn.under_sampling import RandomUnderSampler, TomekLinks
 from keras import regularizers
 from sklearn.preprocessing import StandardScaler
@@ -55,8 +54,8 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-' Imbalanced data techniques'
-# SMOTE pretty bad, SMOTEENN really bad, AD whatever doesnt work at all
+' Imbalanced data techniques '
+# SMOTE - bad, SMOTEENN - really bad, AD whatever doesnt work at all
 
 # random under: no class weights - 28499, pretty close on missed predictions
 # rus = RandomUnderSampler(random_state=42, sampling_strategy = 'majority')
@@ -75,14 +74,6 @@ model = Sequential([
                 Dense(32, activation='relu'),
                 Dense(4, activation="softmax")
 ])
-
-'''model = Sequential([
-    Dense(64, activation='relu', kernel_regularizer=regularizers.l2(0.01), input_shape=(X_resampled.shape[1],)),
-    Dropout(0.5),
-    Dense(32, activation='relu', kernel_regularizer=regularizers.l2(0.01)),
-    Dropout(0.5),
-    Dense(4, activation="softmax")
-])'''
 
 # Compile the model
 model.compile(optimizer='adam', loss=weighted_categorical_crossentropy(class_weights), metrics=(['accuracy']))
