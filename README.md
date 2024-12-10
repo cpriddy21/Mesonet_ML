@@ -5,9 +5,10 @@ members worked with a client from the Kentucky Mesonet to develop the model. Ove
 Kentucky Mesonet, offering an enhanced solution for detecting errors in their data.
 
 ## Key Features
-  - Utilizes a neural network model trained on a data of over 5 million records of climate and weather data.
+  - Utilizes a bagging ensemble of decision trees trained on over 5 million records of climate and weather data
   - A database was created by partitioning and segmenting the dataset given
-  - Model achieves an accuracy rate of approximately 67%
+  - Model achieves an accuracy rate of of over 90%
+  - Model effectively identifies the underrepresented class within the imbalanced dataset
   - Model accepts an input file containing climate and weather data and provides feedback on the data
 
 ## Technologies, Skills, and Frameworks
